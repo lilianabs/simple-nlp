@@ -2,7 +2,7 @@
 Tools for text preprocessing
 
 
-## Developing Getting Started
+## Developer's Guide
 
 To set up a development environment, follow these steps:
 
