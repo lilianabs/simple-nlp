@@ -23,8 +23,13 @@ To set up a development environment, follow these steps:
    ```
    python -m pip install --upgrade pip
    ```
+1. Install setup tools:
+    
+    ```
+    pip install -U pip setuptools wheel
+    ```
 
-1. Install the project requirements:
+2. Install the project requirements:
 
    ```
    python -m pip install -r requirements.txt
