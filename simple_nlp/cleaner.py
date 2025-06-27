@@ -1,6 +1,7 @@
 import re
 import string
 from typing import Optional, List, Any
+from spellchecker import SpellChecker
 
 import spacy
 from sklearn.base import BaseEstimator, TransformerMixin
@@ -38,13 +39,54 @@ class RemoveEmojis(TextCleaner):
             flags=re.UNICODE,
         )
         return [emoji_pattern.sub(r"", text) for text in X]
-    
+
+
 class RemoveHtmlTags(TextCleaner):
     def transform(self, X: List[str], y: Optional[Any] = None) -> List[str]:
         html = re.compile(r'<.*?>')
         return [html.sub(r'', text) for text in X]
-    
+
+ 
 class RemovePunctuation(TextCleaner):
     def transform(self, X: List[str], y: Optional[Any] = None) -> List[str]:
         table = str.maketrans('', '', string.punctuation)
         return [text.translate(table) for text in X]
+    
+
+class SpellingCorrector(TextCleaner):
+    """
+    Correct spelling in a list of strings
+    """
+    def __init__(self, language: str = "en") -> None:
+        self.spell = SpellChecker(language=language)
+
+    def transform(self, X: List[str], y: Optional[Any] = None) -> List[str]:
+        corrected_texts: List[str] = []
+        for text in X:
+            words = text.split()
+            corrected_words = []
+            for word in words:
+                # Only correct alphabetic words
+                if word.isalpha():
+                    corrected_word = self.spell.correction(word)
+                    corrected_words.append(corrected_word if corrected_word else word)
+                else:
+                    corrected_words.append(word)
+                    corrected_texts.append(" ".join(corrected_words))
+        return corrected_texts
+    
+
+class RemoveMentions(TextCleaner):
+    """
+    Remove mentions from a list of strings
+    """
+    def transform(self, X: List[str], y: Optional[Any] = None) -> List[str]:
+        return [re.sub(r'@\w+', '', s) for s in X]
+    
+
+class RemoveHashtags(TextCleaner):
+    """
+    Remove hashtags from a list of strings
+    """
+    def transform(self, X: List[str], y: Optional[Any] = None) -> List[str]:
+        return [re.sub(r'#\w+', '', s) for s in X]
