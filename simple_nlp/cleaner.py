@@ -19,7 +19,8 @@ class TextCleaner(BaseEstimator, TransformerMixin):
     
 class RemoveURLs(TextCleaner):
     def transform(self, X: List[str], y: Optional[Any] = None) -> List[str]:
-        return [re.sub(r'http\S+|www\S+|https\S+', '', text, flags=re.MULTILINE) for text in X]
+        url = re.compile(r'https?://\S+|www\.\S+')
+        return [url.sub(r'',text) for text in X]
     
 
 class RemoveEmojis(TextCleaner):
@@ -53,29 +54,6 @@ class RemovePunctuation(TextCleaner):
         return [text.translate(table) for text in X]
     
 
-class SpellingCorrector(TextCleaner):
-    """
-    Correct spelling in a list of strings
-    """
-    def __init__(self, language: str = "en") -> None:
-        self.spell = SpellChecker(language=language)
-
-    def transform(self, X: List[str], y: Optional[Any] = None) -> List[str]:
-        corrected_texts: List[str] = []
-        for text in X:
-            words = text.split()
-            corrected_words = []
-            for word in words:
-                # Only correct alphabetic words
-                if word.isalpha():
-                    corrected_word = self.spell.correction(word)
-                    corrected_words.append(corrected_word if corrected_word else word)
-                else:
-                    corrected_words.append(word)
-                    corrected_texts.append(" ".join(corrected_words))
-        return corrected_texts
-    
-
 class RemoveMentions(TextCleaner):
     """
     Remove mentions from a list of strings
@@ -90,3 +68,25 @@ class RemoveHashtags(TextCleaner):
     """
     def transform(self, X: List[str], y: Optional[Any] = None) -> List[str]:
         return [re.sub(r'#\w+', '', s) for s in X]
+ 
+class RemoveExtraSpaces(TextCleaner):
+    def transform(self, X: List[str], y: Optional[Any] = None) -> List[str]:
+        return [re.sub(r'\s+', ' ', text).strip() for text in X]
+
+
+class SpellCheckerCleaner(TextCleaner):
+    def __init__(self) -> None:
+        super().__init__()
+        self.spell_checker = SpellChecker(language='en')
+
+    def _correct_spelling(self, text: str) -> str:
+        words = text.split()
+        misspelled_words = self.spell_checker.unknown(words)
+        corrected_text = [
+            self.spell_checker.correction(word) if word in misspelled_words else word
+            for word in words
+        ]
+        return " ".join(corrected_text)
+
+    def transform(self, X: List[str], y: Optional[Any] = None) -> List[str]:
+        return [self._correct_spelling(text) for text in X]
