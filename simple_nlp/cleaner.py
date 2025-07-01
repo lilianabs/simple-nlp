@@ -74,6 +74,12 @@ class RemoveExtraSpaces(TextCleaner):
         return [re.sub(r'\s+', ' ', text).strip() for text in X]
 
 
+class RemovePunctuation(TextCleaner):
+    def transform(self, X: List[str], y: Optional[Any] = None) -> List[str]:
+        table = str.maketrans('','',string.punctuation)
+        return [text.translate(table) for text in X]
+
+
 class SpellCheckerCleaner(TextCleaner):
     def __init__(self) -> None:
         super().__init__()
