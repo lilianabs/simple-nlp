@@ -1,6 +1,48 @@
 # simple-nlp
 Tools for text preprocessing
 
+## Usage example
+
+### Using sklearn's Pipeline
+
+```
+from simple_nlp.cleaner import *
+from sklearn.pipeline import Pipeline
+
+
+data = [
+"Hello, this is a sample tweet! #NLP #Python @user1 😊 https://example.com",
+"Another example with emojis 😂 and a url www.google.com",
+]
+
+# Create a pipeline
+pipeline = Pipeline([
+('remove_urls', RemoveURLs()),
+('remove_mentions', RemoveMentions()),
+('remove_hashtags', RemoveHashtags()),
+('remove_html_tags', RemoveHtmlTags()),
+('remove_emojis', RemoveEmojis()),
+('remove_extra_spaces', RemoveExtraSpaces()),
+#('spell_check', SpellCheckerCleaner())
+])
+
+# Transform the data
+cleaned_data = pipeline.fit_transform(data)
+
+# Print the cleaned data
+print(cleaned_data)
+```
+
+### Using a single class
+
+```
+from simple_nlp.cleaner import SpellCheckerCleaner
+
+texts = ["corect the speling erors plese", "anothr sentnce with misstakes"]
+spell_cleaner = SpellCheckerCleaner()
+cleaned = spell_cleaner.transform(texts)
+print(cleaned)
+```
 
 ## Developer's Guide
 
