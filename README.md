@@ -1,5 +1,5 @@
 # simple-nlp
-Tools for text preprocessing
+This repo contains tools for preprocessing text for training machine learning models.
 
 ## Usage example
 
